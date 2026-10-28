@@ -1,0 +1,118 @@
+
+@model MedicineInventory.Models.Medicine
+
+@{
+    ViewData["Title"] = "Medicine Details";
+}
+
+<h1 class="fw-bold mb-2">Medicine Details</h1>
+<p class="text-muted mb-4">View medicine information and its associated inventory batches.</p>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <h4 class="fw-bold">@Model.Name</h4>
+        <p class="text-muted">@Model.Category</p>
+        <hr />
+
+        <dl class="row">
+            <dt class="col-sm-4">Manufacturer</dt>
+            <dd class="col-sm-8">@Model.Manufacturer</dd>
+
+            <dt class="col-sm-4">Total Quantity</dt>
+            <dd class="col-sm-8">@Model.TotalQuantity</dd>
+
+            <dt class="col-sm-4">Minimum Stock Threshold</dt>
+            <dd class="col-sm-8">@Model.MinimumStockThreshold</dd>
+
+            <dt class="col-sm-4">Number of Batches</dt>
+            <dd class="col-sm-8">@Model.BatchCount</dd>
+
+            <dt class="col-sm-4">Nearest Expiry Date</dt>
+            <dd class="col-sm-8">
+                @(Model.NearestExpiryDate?.ToString("dd MMM yyyy") ?? "No stock available")
+            </dd>
+
+            <dt class="col-sm-4">Stock Status</dt>
+            <dd class="col-sm-8">
+                @if (Model.IsLowStock)
+                {
+                    <span class="badge bg-danger">Low Stock</span>
+                }
+                else
+                {
+                    <span class="badge bg-success">Stock Available</span>
+                }
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <h5 class="fw-bold mb-3">Batch Inventory</h5>
+
+        @if (Model.Batches.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Batch Number</th>
+                            <th>Quantity</th>
+                            <th>Manufactured</th>
+                            <th>Expires</th>
+                            <th>Expiry Status</th>
+                            <th>Purchase Price</th>
+                            <th>Selling Price</th>
+                            <th>Supplier</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var batch in Model.Batches.OrderBy(b => b.ExpiryDate))
+                        {
+                            <tr>
+                                <td>@batch.BatchNumber</td>
+                                <td>@batch.Quantity</td>
+                                <td>@batch.ManufacturingDate.ToString("dd MMM yyyy")</td>
+                                <td>@batch.ExpiryDate.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @switch (batch.ExpiryStatus)
+                                    {
+                                        case "Expired":
+                                            <span class="badge bg-danger">Expired</span>
+                                            break;
+                                        case "Expiring Soon":
+                                            <span class="badge bg-warning text-dark">Expiring Soon</span>
+                                            break;
+                                        case "Expiring Within 90 Days":
+                                            <span class="badge bg-info text-dark">Within 90 Days</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-success">Safe</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>@batch.PurchasePrice.ToString("N2")</td>
+                                <td>@batch.SellingPrice.ToString("N2")</td>
+                                <td>@batch.SupplierName</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mb-0">No batches have been added for this medicine yet.</p>
+        }
+    </div>
+</div>
+
+<div class="d-flex gap-2">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+        Edit Medicine
+    </a>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Back to Inventory
+    </a>
+</div>

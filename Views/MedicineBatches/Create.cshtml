@@ -1,0 +1,16 @@
+@model MedicineInventory.Models.MedicineBatch
+@{
+    ViewData["Title"] = "Add Batch";
+}
+<h1 class="h2 mb-2">Add Medicine Batch</h1>
+<p class="text-muted mb-4">Each batch has its own quantity, supplier, prices and expiry date.</p>
+<div class="card shadow-sm"><div class="card-body">
+    <form asp-action="Create" method="post">
+        <partial name="_BatchForm" model="Model" />
+        <button type="submit" class="btn btn-primary">Save Batch</button>
+        <a asp-action="Index" asp-route-medicineId="@Model.MedicineId" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div></div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

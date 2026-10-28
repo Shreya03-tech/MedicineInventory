@@ -1,0 +1,74 @@
+@model IEnumerable<MedicineInventory.Models.MedicineBatch>
+@{
+    ViewData["Title"] = "Medicine Batches";
+    int? medicineId = ViewBag.MedicineId as int?;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h2 mb-1">Medicine Batches</h1>
+        <p class="text-muted mb-0">
+            @(ViewBag.MedicineName is string name ? $"Batches for {name}" : "Track quantities, suppliers and expiry dates.")
+        </p>
+    </div>
+    <a asp-action="Create" asp-route-medicineId="@medicineId" class="btn btn-primary">+ Add Batch</a>
+</div>
+
+@if (TempData["SuccessMessage"] is string success)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @success
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form method="get" class="row g-2 mb-3">
+    <input type="hidden" name="medicineId" value="@medicineId" />
+    <div class="col-sm-5 col-md-4">
+        <select name="status" class="form-select">
+            <option value="">All statuses</option>
+            <option value="expired" selected="@(ViewBag.Status as string == "expired")">Expired</option>
+            <option value="expiring-soon" selected="@(ViewBag.Status as string == "expiring-soon")">Expiring in 30 days</option>
+            <option value="low-stock" selected="@(ViewBag.Status as string == "low-stock")">Quantity 10 or less</option>
+        </select>
+    </div>
+    <div class="col-auto"><button class="btn btn-outline-primary" type="submit">Filter</button></div>
+    <div class="col-auto"><a asp-action="Index" asp-route-medicineId="@medicineId" class="btn btn-outline-secondary">Clear</a></div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Medicine</th><th>Batch No.</th><th>Quantity</th><th>Expiry</th><th>Status</th><th>Supplier</th><th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var batch in Model)
+        {
+            var statusClass = batch.ExpiryStatus == "Expired" ? "danger"
+                : batch.ExpiryStatus == "Expiring Soon" ? "warning text-dark"
+                : batch.ExpiryStatus == "Expiring Within 90 Days" ? "info text-dark" : "success";
+            <tr>
+                <td>@batch.Medicine?.Name</td>
+                <td>@batch.BatchNumber</td>
+                <td>
+                    <span class="@(batch.Quantity <= 10 ? "text-danger fw-bold" : "")">@batch.Quantity</span>
+                </td>
+                <td>@batch.ExpiryDate.ToString("dd MMM yyyy")</td>
+                <td><span class="badge bg-@statusClass">@batch.ExpiryStatus</span></td>
+                <td>@batch.SupplierName</td>
+                <td class="text-end text-nowrap">
+                    <a asp-action="Details" asp-route-id="@batch.Id" class="btn btn-sm btn-outline-secondary">View</a>
+                    <a asp-action="Edit" asp-route-id="@batch.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@batch.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr><td colspan="7" class="text-center text-muted py-4">No batches found. Add a batch to start tracking inventory.</td></tr>
+        }
+        </tbody>
+    </table>
+</div>

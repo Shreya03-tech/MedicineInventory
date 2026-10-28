@@ -1,0 +1,17 @@
+@model MedicineInventory.Models.MedicineBatch
+@{
+    ViewData["Title"] = "Delete Batch";
+}
+<h1 class="h2 mb-2">Delete Batch</h1>
+<div class="alert alert-warning">This permanently deletes this batch record. This action cannot be undone.</div>
+<div class="card shadow-sm mb-3"><div class="card-body">
+    <h2 class="h5">@Model.Medicine?.Name — @Model.BatchNumber</h2>
+    <p class="mb-1">Quantity: <strong>@Model.Quantity</strong></p>
+    <p class="mb-1">Expiry date: <strong>@Model.ExpiryDate.ToString("dd MMM yyyy")</strong></p>
+    <p class="mb-0">Supplier: <strong>@Model.SupplierName</strong></p>
+</div></div>
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Confirm Delete</button>
+    <a asp-action="Index" asp-route-medicineId="@Model.MedicineId" class="btn btn-outline-secondary">Cancel</a>
+</form>

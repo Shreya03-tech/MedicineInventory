@@ -1,0 +1,110 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MedicineInventory</title>
+
+    <script type="importmap"></script>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/MedicineInventory.styles.css" asp-append-version="true" />
+</head>
+
+<body class="app-body">
+    <header class="site-header">
+        <nav class="navbar navbar-expand-lg app-navbar">
+            <div class="container-xl">
+                <a class="navbar-brand app-brand"
+                   asp-area=""
+                   asp-controller="Home"
+                   asp-action="Index">
+                    <span class="brand-icon">✚</span>
+                    <span class="brand-text">
+                        Medi<span>Stock</span>
+                        <small>Medicine Inventory System</small>
+                    </span>
+                </a>
+
+                <button class="navbar-toggler app-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                        <li class="nav-item">
+                            <a class="nav-link app-nav-link"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                <span class="nav-icon">⌂</span> Dashboard
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link app-nav-link"
+                               asp-controller="Medicines"
+                               asp-action="Index">
+                                <span class="nav-icon">▤</span> Medicines
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link app-nav-link"
+                               asp-controller="Medicines"
+                               asp-action="Create">
+                                <span class="nav-icon">＋</span> Add Medicine
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link app-nav-link"
+                               asp-controller="Home"
+                               asp-action="Privacy">
+                                Privacy
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="navbar-status d-none d-lg-flex">
+                        <span class="status-dot"></span>
+                        Inventory Portal
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="app-main container-xl">
+        @RenderBody()
+    </main>
+
+    <footer class="app-footer">
+        <div class="container-xl footer-content">
+            <div>
+                <span class="footer-symbol">✚</span>
+                <strong>MediStock</strong>
+                <span class="footer-muted">· Smarter medicine management</span>
+            </div>
+
+            <div class="footer-muted">
+                &copy; 2026 MedicineInventory
+                <span class="footer-separator">·</span>
+                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

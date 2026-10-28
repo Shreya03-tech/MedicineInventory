@@ -1,0 +1,499 @@
+﻿
+@model MedicineInventory.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="dashboard-page">
+
+    <!-- Dashboard heading -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <span class="dashboard-eyebrow">INVENTORY OVERVIEW</span>
+            <h1 class="fw-bold mb-1">Dashboard</h1>
+            <p class="text-muted mb-0">
+                Monitor medicine expiry, stock levels, and inventory activity.
+            </p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-controller="Medicines" asp-action="Index"
+               class="btn btn-outline-primary">
+                View Inventory
+            </a>
+            <a asp-controller="Medicines" asp-action="Create"
+               class="btn btn-primary">
+                + Add Medicine
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card stat-card-purple">
+                <div class="stat-card-top">
+                    <span class="stat-label">Total Medicines</span>
+                    <span class="stat-icon">▤</span>
+                </div>
+                <div class="stat-number">@Model.TotalMedicines</div>
+                <div class="stat-description">Medicine records in inventory</div>
+                <a asp-controller="Medicines" asp-action="Index"
+                   class="stat-link">View all medicines →</a>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card stat-card-red">
+                <div class="stat-card-top">
+                    <span class="stat-label">Expired Medicines</span>
+                    <span class="stat-icon">!</span>
+                </div>
+                <div class="stat-number">@Model.ExpiredMedicines</div>
+                <div class="stat-description">Past their expiry date</div>
+                <a asp-controller="Medicines" asp-action="Index"
+                   asp-route-status="expired" class="stat-link">
+                    Review expired →
+                </a>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card stat-card-orange">
+                <div class="stat-card-top">
+                    <span class="stat-label">Expiring Soon</span>
+                    <span class="stat-icon">◷</span>
+                </div>
+                <div class="stat-number">@Model.ExpiringSoonMedicines</div>
+                <div class="stat-description">Expiry within 30 days</div>
+                <a asp-controller="Medicines" asp-action="Index"
+                   asp-route-status="expiring-soon" class="stat-link">
+                    Check expiry dates →
+                </a>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card stat-card-teal">
+                <div class="stat-card-top">
+                    <span class="stat-label">Low Stock</span>
+                    <span class="stat-icon">↓</span>
+                </div>
+                <div class="stat-number">@Model.LowStockMedicines</div>
+                <div class="stat-description">At or below stock threshold</div>
+                <a asp-controller="Medicines" asp-action="Index"
+                   asp-route-status="low-stock" class="stat-link">
+                    Review stock →
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Analytics charts -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-12 col-lg-6">
+            <div class="analytics-card h-100">
+                <div class="analytics-heading">
+                    <div>
+                        <h5>Expiry Distribution</h5>
+                        <p>Medicine records grouped by expiry date</p>
+                    </div>
+                    <span class="analytics-icon purple-icon">◉</span>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="expiryChart"
+                            role="img"
+                            aria-label="Doughnut chart of expired, expiring soon, expiring within 90 days, and safe medicine records">
+                        Expiry distribution chart.
+                    </canvas>
+                </div>
+
+                <div class="chart-footnote">
+                    Expiring soon means within 30 days.
+                    The 31–90 day category is shown separately.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="analytics-card h-100">
+                <div class="analytics-heading">
+                    <div>
+                        <h5>Stock Status</h5>
+                        <p>Records compared with their minimum stock threshold</p>
+                    </div>
+                    <span class="analytics-icon teal-icon">▥</span>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="stockChart"
+                            role="img"
+                            aria-label="Bar chart comparing low-stock and normal-stock medicine records">
+                        Stock status chart.
+                    </canvas>
+                </div>
+
+                <div class="chart-footnote">
+                    Low stock includes records whose quantity is equal to
+                    or below the configured threshold.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Inventory alerts -->
+    <div class="section-heading mb-3">
+        <div>
+            <h5 class="fw-bold mb-1">Inventory Alerts</h5>
+            <p class="text-muted mb-0">Items that may need your attention</p>
+        </div>
+    </div>
+
+    @if (Model.ExpiredMedicines > 0 ||
+         Model.ExpiringSoonMedicines > 0 ||
+         Model.LowStockMedicines > 0)
+    {
+        <div class="analytics-card mb-4">
+
+            @if (Model.ExpiredMedicines > 0)
+            {
+                <div class="inventory-alert alert-expired">
+                    <div class="alert-symbol">!</div>
+                    <div class="alert-content">
+                        <strong>Expired medicines</strong>
+                        <span>
+                            @Model.ExpiredMedicines medicine record(s)
+                            have passed their expiry date.
+                        </span>
+                    </div>
+                    <a asp-controller="Medicines" asp-action="Index"
+                       asp-route-status="expired"
+                       class="btn btn-sm btn-outline-danger">
+                        Review
+                    </a>
+                </div>
+            }
+
+            @if (Model.ExpiringSoonMedicines > 0)
+            {
+                <div class="inventory-alert alert-expiring">
+                    <div class="alert-symbol">◷</div>
+                    <div class="alert-content">
+                        <strong>Expiring soon</strong>
+                        <span>
+                            @Model.ExpiringSoonMedicines medicine record(s)
+                            expire within 30 days.
+                        </span>
+                    </div>
+                    <a asp-controller="Medicines" asp-action="Index"
+                       asp-route-status="expiring-soon"
+                       class="btn btn-sm btn-outline-warning">
+                        Review
+                    </a>
+                </div>
+            }
+
+            @if (Model.LowStockMedicines > 0)
+            {
+                <div class="inventory-alert alert-low-stock">
+                    <div class="alert-symbol">↓</div>
+                    <div class="alert-content">
+                        <strong>Low stock</strong>
+                        <span>
+                            @Model.LowStockMedicines medicine record(s)
+                            are at or below their minimum stock threshold.
+                        </span>
+                    </div>
+                    <a asp-controller="Medicines" asp-action="Index"
+                       asp-route-status="low-stock"
+                       class="btn btn-sm btn-outline-primary">
+                        Review
+                    </a>
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success mb-4">
+            <strong>All clear!</strong>
+            No expired, expiring-soon, or low-stock records were found.
+        </div>
+    }
+
+    <!-- Recent medicine records -->
+   
+    <!-- Recent medicine records -->
+    <div class="analytics-card recent-card">
+        <div class="analytics-heading">
+            <div>
+                <h5>Recent Medicines</h5>
+                <p>The five most recently added medicine records</p>
+            </div>
+            <a asp-controller="Medicines" asp-action="Index"
+               class="btn btn-sm btn-outline-primary">
+                View All
+            </a>
+        </div>
+
+        @if (Model.RecentMedicines.Any())
+        {
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Batch Numbers</th>
+                            <th>Total Quantity</th>
+                            <th>Nearest Expiry</th>
+                            <th>Expiry Status</th>
+                            <th>Stock</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var medicine in Model.RecentMedicines)
+                        {
+                            var batches = medicine.Batches
+                                .OrderBy(b => b.ExpiryDate)
+                                .ToList();
+
+                            var stockedBatches = batches
+                                .Where(b => b.Quantity > 0)
+                                .ToList();
+
+                            var nearestBatch = stockedBatches.FirstOrDefault();
+
+                            var expiryStatuses = stockedBatches
+                                .Select(b => b.ExpiryStatus)
+                                .Distinct()
+                                .ToList();
+
+                            <tr>
+                                <td>
+                                    <div class="medicine-name">@medicine.Name</div>
+                                    <small class="text-muted">@medicine.Manufacturer</small>
+                                </td>
+
+                                <td>
+                                    @if (batches.Any())
+                                    {
+                                        @foreach (var batch in batches.Take(2))
+                                        {
+                                            <div class="font-monospace">@batch.BatchNumber</div>
+                                        }
+
+                                        @if (batches.Count > 2)
+                                        {
+                                            <small class="text-muted">
+                                                +@(batches.Count - 2) more
+                                            </small>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No batches</span>
+                                    }
+                                </td>
+
+                                <td class="fw-semibold">@medicine.TotalQuantity</td>
+
+                                <td>
+                                    @if (nearestBatch != null)
+                                    {
+                                        @nearestBatch.ExpiryDate.ToString("dd MMM yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (!expiryStatuses.Any())
+                                    {
+                                        <span class="badge bg-secondary">No Active Stock</span>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var expiryStatus in expiryStatuses)
+                                        {
+                                            switch (expiryStatus)
+                                            {
+                                                case "Expired":
+                                                    <span class="badge bg-danger me-1 mb-1">Expired</span>
+                                                    break;
+                                                case "Expiring Soon":
+                                                    <span class="badge bg-warning text-dark me-1 mb-1">Expiring Soon</span>
+                                                    break;
+                                                case "Expiring Within 90 Days":
+                                                    <span class="badge bg-info text-dark me-1 mb-1">Within 90 Days</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-success me-1 mb-1">Safe</span>
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (medicine.IsLowStock)
+                                    {
+                                        <span class="badge bg-warning text-dark">Low Stock</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Sufficient</span>
+                                    }
+                                </td>
+
+                                <td class="text-end">
+                                    <a asp-controller="Medicines"
+                                       asp-action="Details"
+                                       asp-route-id="@medicine.Id"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-dashboard">
+                <div class="empty-dashboard-icon">▤</div>
+                <h6>No medicines added yet</h6>
+                <p>Add your first medicine to see inventory analytics here.</p>
+                <a asp-controller="Medicines" asp-action="Create"
+                   class="btn btn-primary">
+                    + Add First Medicine
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (typeof Chart === "undefined") {
+                console.error("Chart.js could not be loaded. Check your internet connection.");
+                return;
+            }
+
+            const expiryCanvas = document.getElementById("expiryChart");
+            const stockCanvas = document.getElementById("stockChart");
+
+            const expiryLabels = [
+                "Expired",
+                "Expiring within 30 days",
+                "Expiring in 31–90 days",
+                "Safe (over 90 days)"
+            ];
+
+            const expiryValues = [
+                @Model.ExpiredMedicines,
+                @Model.ExpiringSoonMedicines,
+                @Model.ExpiringWithin90DaysMedicines,
+                @Model.SafeMedicines
+            ];
+
+            new Chart(expiryCanvas, {
+                type: "doughnut",
+                data: {
+                    labels: expiryLabels,
+                    datasets: [{
+                        data: expiryValues,
+                        backgroundColor: [
+                            "#ef5261",
+                            "#ffad45",
+                            "#5e9cf5",
+                            "#20b99a"
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 7,
+                        spacing: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "67%",
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: "circle",
+                                padding: 17,
+                                boxWidth: 8,
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return " " + context.label + ": " + context.raw;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            new Chart(stockCanvas, {
+                type: "bar",
+                data: {
+                    labels: ["Low Stock", "Normal Stock"],
+                    datasets: [{
+                        label: "Medicine records",
+                        data: [
+                            @Model.LowStockMedicines,
+                            @Model.NormalStockMedicines
+                        ],
+                        backgroundColor: ["#ffad45", "#20b99a"],
+                        borderRadius: 8,
+                        borderSkipped: false,
+                        maxBarThickness: 72
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 },
+                            grid: { color: "#edf0f7" },
+                            border: { display: false }
+                        },
+                        x: {
+                            grid: { display: false },
+                            border: { display: false }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,16 @@
+@model MedicineInventory.Models.MedicineBatch
+@{
+    ViewData["Title"] = "Edit Batch";
+}
+<h1 class="h2 mb-4">Edit Batch</h1>
+<div class="card shadow-sm"><div class="card-body">
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        <input type="hidden" asp-for="Id" />
+        <partial name="_BatchForm" model="Model" />
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a asp-action="Index" asp-route-medicineId="@Model.MedicineId" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div></div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
